@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html lang="en" class="supernova isDefault">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=1" />
+    <title>Queuing Theory Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3fe;
+            color: #2c3344;
+        }
+        .form-all {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-all">
+        <h1>Queuing Theory Calculator</h1>
+        <p>Enter Arrival Rate (λ) and Service Rate (μ) to calculate the metrics:</p>
+
+        <form id="queueForm" onsubmit="return calculateQueueingMetrics(event);">
+            <div class="form-section">
+                <label for="arrival_rate">Arrival Rate (λ):</label>
+                <input type="number" id="arrival_rate" name="arrival_rate" required placeholder="Masukkan nilai (λ)">
+            </div>
+            <div class="form-section">
+                <label for="service_rate">Service Rate (μ):</label>
+                <input type="number" id="service_rate" name="service_rate" required placeholder="Masukkan nilai (μ)">
+            </div>
+
+            <h3>M/M/1 Results</h3>
+            <div class="form-section">
+                <label for="traffic_intensity">Traffic intensity (ρ):</label>
+                <input type="text" id="traffic_intensity" readonly>
+            </div>
+            <div class="form-section">
+                <label for="avg_number_in_system">Average number of customers (L):</label>
+                <input type="text" id="avg_number_in_system" readonly>
+            </div>
+            <div class="form-section">
+                <label for="avg_number_in_queue">Number of customers in the queue (Lq):</label>
+                <input type="text" id="avg_number_in_queue" readonly>
+            </div>
+            <div class="form-section">
+                <label for="avg_time_in_system">Average time spent in the system (W):</label>
+                <input type="text" id="avg_time_in_system" readonly>
+            </div>
+            <div class="form-section">
+                <label for="avg_time_in_queue">Time in queue (Wq):</label>
+                <input type="text" id="avg_time_in_queue" readonly>
+            </div>
+
+            <button type="submit">Calculate</button>
+        </form>
+    </div>
+
+    <script>
+        async function calculateQueueingMetrics(event) {
+            event.preventDefault();
+
+            // Get input values
+            const arrivalRate = document.getElementById("arrival_rate").value;
+            const serviceRate = document.getElementById("service_rate").value;
+
+            try {
+                // Make POST request to backend
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ arrival_rate: arrivalRate, service_rate: serviceRate }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Display results in form fields
+                    document.getElementById("traffic_intensity").value = result.traffic_intensity;
+                    document.getElementById("avg_number_in_system").value = result.avg_number_in_system;
+                    document.getElementById("avg_number_in_queue").value = result.avg_number_in_queue;
+                    document.getElementById("avg_time_in_system").value = result.avg_time_in_system;
+                    document.getElementById("avg_time_in_queue").value = result.avg_time_in_queue;
+                } else {
+                    alert(result.error || "An error occurred");
+                }
+            } catch (error) {
+                alert("Failed to connect to the server.");
+            }
+        }
+    </script>
+</body>
+</html>
